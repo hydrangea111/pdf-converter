@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPG PDF 변환기</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        body { font-family: 'Pretendard', -apple-system, sans-serif; padding: 20px; background: #f4f7f9; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h3 { margin-top: 0; text-align: center; color: #1a73e8; }
+        #drop-area { border: 2px dashed #1a73e8; padding: 30px; background: #f8fbff; cursor: pointer; border-radius: 10px; margin-bottom: 20px; text-align: center; transition: 0.3s; }
+        #drop-area:hover { background: #f0f7ff; }
+        #preview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .thumb-container { border: 1px solid #eee; border-radius: 6px; overflow: hidden; background: #fff; cursor: move; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .thumb { width: 100%; height: 75px; object-fit: cover; display: block; }
+        .input-group { margin: 20px 0; text-align: left; }
+        label { font-size: 14px; font-weight: bold; color: #555; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 8px; font-size: 14px; }
+        .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-blue { background: #1a73e8; color: white; font-size: 16px; }
+        .btn-blue:hover { background: #1557b0; }
+        .btn-blue:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-gray { background: #f1f3f4; color: #3c4043; }
+        .btn-gray:hover { background: #e8eaed; }
+        #status-container { margin: 15px 0; padding: 10px; border-radius: 8px; background: #e8f0fe; display: none; }
+        #status-text { font-size: 14px; color: #1967d2; font-weight: bold; text-align: center; }
+        .progress-bar { height: 4px; background: #d2e3fc; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        #progress-fill { height: 100%; background: #1a73e8; width: 0%; transition: width 0.2s; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3>JPG PDF 변환기</h3>
+    
+    <div id="drop-area" onclick="document.getElementById('fileElem').click()">
+        파일을 선택하거나 드래그하세요
+        <input type="file" id="fileElem" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+    </div>
+
+    <div class="input-group">
+        <label>💾 저장할 파일 이름</label>
+        <input type="text" id="fileNameInput" placeholder="저장할 파일 이름을 설정하세요">
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-gray" onclick="sortByName()">가나다순 정렬</button>
+        <button class="btn-gray" onclick="location.reload()">전체 삭제</button>
+    </div>
+    
+    <button class="btn-blue" id="downloadBtn" onclick="generatePDF()" disabled>PDF 저장 시작</button>
+    
+    <div id="status-container">
+        <div id="status-text">준비 완료</div>
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+    </div>
+
+    <div id="preview"></div>
+</div>
+
+<script>
+    const { jsPDF } = window.jspdf;
+    const preview = document.getElementById('preview');
+    const statusContainer = document.getElementById('status-container');
+    const statusText = document.getElementById('status-text');
+    const progressFill = document.getElementById('progress-fill');
+    const fileNameInput = document.getElementById('fileNameInput');
+    let fileMap = new Map();
+
+    Sortable.create(preview, { animation: 150 });
+
+    function handleFiles(files) {
+        statusContainer.style.display = 'block';
+        for (let file of files) {
+            fileMap.set(file.name, file);
+            const div = document.createElement('div');
+            div.className = 'thumb-container';
+            div.dataset.fileName = file.name;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                div.innerHTML = `<img src="${e.target.result}" class="thumb">`;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file.slice(0, 1024 * 500));
+        }
+        document.getElementById('downloadBtn').disabled = false;
+        statusText.innerText = `${fileMap.size}개의 파일이 로드되었습니다.`;
+        progressFill.style.width = '0%';
+    }
+
+    function sortByName() {
+        const items = Array.from(preview.children);
+        items.sort((a, b) => a.dataset.fileName.localeCompare(b.dataset.fileName, undefined, {numeric: true}));
+        items.forEach(item => preview.appendChild(item));
+        statusText.innerText = "파일명 순으로 정렬되었습니다.";
+    }
+
+    async function generatePDF() {
+        const items = Array.from(preview.querySelectorAll('.thumb-container'));
+        if (items.length === 0) return;
+
+        // 파일 이름 및 특수문자 처리 추가
+        let rawFileName = fileNameInput.value.trim() || "converted_document";
+        let finalFileName = rawFileName.replace(/[:\\/*?"<>|]/g, "_"); 
+
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pw = pdf.internal.pageSize.getWidth();
+        const ph = pdf.internal.pageSize.getHeight();
+
+        document.getElementById('downloadBtn').disabled = true;
+        statusContainer.style.display = 'block';
+
+        for (let i = 0; i < items.length; i++) {
+            const percent = Math.round(((i + 1) / items.length) * 100);
+            statusText.innerText = `PDF 생성 중: ${i + 1} / ${items.length} (${percent}%)`;
+            progressFill.style.width = `${percent}%`;
+            
+            if (i > 0) pdf.addPage();
+            
+            const fileName = items[i].dataset.fileName;
+            const file = fileMap.get(fileName);
+            
+            await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        const maxDim = 2500;
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            const factor = maxDim / Math.max(w, h);
+                            w *= factor; h *= factor;
+                        }
+
+                        canvas.width = w; canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        
+                        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+                        const ratio = Math.min(pw / w, ph / h);
+                        pdf.addImage(imgData, 'JPEG', (pw - w * ratio) / 2, (ph - h * ratio) / 2, w * ratio, h * ratio);
+                        resolve();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        pdf.save(`${finalFileName}.pdf`);
+        statusText.innerText = "저장 성공";
+        progressFill.style.width = '100%';
+        document.getElementById('downloadBtn').disabled = false;
+    }
+</script>
+</body>
+</html>
