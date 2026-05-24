@@ -1,164 +1,489 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JPG PDF 변환기</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <style>
-        body { font-family: 'Pretendard', -apple-system, sans-serif; padding: 20px; background: #f4f7f9; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h3 { margin-top: 0; text-align: center; color: #1a73e8; }
-        #drop-area { border: 2px dashed #1a73e8; padding: 30px; background: #f8fbff; cursor: pointer; border-radius: 10px; margin-bottom: 20px; text-align: center; transition: 0.3s; }
-        #drop-area:hover { background: #f0f7ff; }
-        #preview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
-        .thumb-container { border: 1px solid #eee; border-radius: 6px; overflow: hidden; background: #fff; cursor: move; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .thumb { width: 100%; height: 75px; object-fit: cover; display: block; }
-        .input-group { margin: 20px 0; text-align: left; }
-        label { font-size: 14px; font-weight: bold; color: #555; }
-        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 8px; font-size: 14px; }
-        .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-blue { background: #1a73e8; color: white; font-size: 16px; }
-        .btn-blue:hover { background: #1557b0; }
-        .btn-blue:disabled { background: #ccc; cursor: not-allowed; }
-        .btn-gray { background: #f1f3f4; color: #3c4043; }
-        .btn-gray:hover { background: #e8eaed; }
-        #status-container { margin: 15px 0; padding: 10px; border-radius: 8px; background: #e8f0fe; display: none; }
-        #status-text { font-size: 14px; color: #1967d2; font-weight: bold; text-align: center; }
-        .progress-bar { height: 4px; background: #d2e3fc; border-radius: 2px; margin-top: 8px; overflow: hidden; }
-        #progress-fill { height: 100%; background: #1a73e8; width: 0%; transition: width 0.2s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPG → PDF</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f0ede8;
+    --card: #faf8f5;
+    --ink: #1c1917;
+    --ink2: #78716c;
+    --accent: #d97706;
+    --accent2: #fef3c7;
+    --border: #e7e5e0;
+    --danger: #dc2626;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Gowun Dodum', serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px 80px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 0 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  header h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  header span {
+    font-size: 12px;
+    color: var(--ink2);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* drop zone */
+  #drop-zone {
+    background: var(--card);
+    border: 1.5px dashed #c4bfb9;
+    border-radius: 12px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    user-select: none;
+  }
+  #drop-zone.dragover {
+    border-color: var(--accent);
+    background: var(--accent2);
+  }
+
+  #drop-zone .icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  #drop-zone p {
+    font-size: 14px;
+    color: var(--ink2);
+    line-height: 1.6;
+  }
+
+  #drop-zone strong { color: var(--ink); }
+
+  /* preview grid */
+  #preview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .thumb-wrap {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    cursor: grab;
+    aspect-ratio: 3/4;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    transition: box-shadow .15s;
+  }
+  .thumb-wrap:active { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+
+  .thumb-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  .thumb-num {
+    position: absolute;
+    bottom: 4px;
+    right: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: rgba(0,0,0,.55);
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 4px;
+    pointer-events: none;
+  }
+
+  .thumb-del {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    background: rgba(220,38,38,.8);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    display: none;
+    padding: 0;
+  }
+  .thumb-wrap:hover .thumb-del { display: block; }
+
+  /* controls */
+  .controls {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--ink2);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field input:focus { border-color: var(--accent); }
+
+  .row { display: flex; gap: 8px; }
+
+  .btn {
+    flex: 1;
+    padding: 10px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    font-family: 'Gowun Dodum', serif;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg); border-color: #a8a29e; }
+  .btn:active { background: #e7e5e0; }
+
+  .btn-primary {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+    font-size: 14px;
+    padding: 12px;
+  }
+  .btn-primary:hover { background: #44403c; border-color: #44403c; }
+  .btn-primary:disabled { background: #c4bfb9; border-color: #c4bfb9; cursor: not-allowed; }
+
+  /* progress */
+  #prog-wrap {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  #prog-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink2);
+    margin-bottom: 8px;
+  }
+
+  .bar-bg {
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  #bar { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .18s ease; }
+
+  /* count badge */
+  #count-badge {
+    display: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink2);
+    text-align: right;
+  }
+</style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="container">
-    <h3>JPG PDF 변환기</h3>
-    
-    <div id="drop-area" onclick="document.getElementById('fileElem').click()">
-        파일을 선택하거나 드래그하세요
-        <input type="file" id="fileElem" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
-    </div>
+  <header>
+    <h1>JPG → PDF</h1>
+    <span id="count-badge">파일 0개</span>
+  </header>
 
-    <div class="input-group">
-        <label>💾 저장할 파일 이름</label>
-        <input type="text" id="fileNameInput" placeholder="저장할 파일 이름을 설정하세요">
-    </div>
+  <div id="drop-zone">
+    <span class="icon">📂</span>
+    <p><strong>클릭하거나 여기에 파일을 드래그</strong><br>JPG, PNG, WEBP 등 이미지 파일</p>
+    <input type="file" id="file-input" multiple accept="image/*" style="display:none">
+  </div>
 
-    <div class="btn-group">
-        <button class="btn-gray" onclick="sortByName()">가나다순 정렬</button>
-        <button class="btn-gray" onclick="location.reload()">전체 삭제</button>
-    </div>
-    
-    <button class="btn-blue" id="downloadBtn" onclick="generatePDF()" disabled>PDF 저장 시작</button>
-    
-    <div id="status-container">
-        <div id="status-text">준비 완료</div>
-        <div class="progress-bar"><div id="progress-fill"></div></div>
-    </div>
+  <div id="preview"></div>
 
-    <div id="preview"></div>
+  <div class="controls">
+    <div class="field">
+      <label>저장 파일명</label>
+      <input type="text" id="fname" placeholder="파일명 (기본: converted)">
+    </div>
+    <div class="row">
+      <button class="btn" onclick="sortFiles(1)">가나다순 ↑</button>
+      <button class="btn" onclick="sortFiles(-1)">가나다순 ↓</button>
+      <button class="btn" onclick="clearAll()">전체 삭제</button>
+    </div>
+    <button class="btn btn-primary" id="dl-btn" disabled onclick="makePDF()">PDF 저장</button>
+  </div>
+
+  <div id="prog-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div id="prog-label" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2)">준비 중…</div>
+      <div id="prog-pct" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--accent)">0%</div>
+    </div>
+    <div class="bar-bg"><div id="bar"></div></div>
+  </div>
+
 </div>
 
 <script>
-    const { jsPDF } = window.jspdf;
-    const preview = document.getElementById('preview');
-    const statusContainer = document.getElementById('status-container');
-    const statusText = document.getElementById('status-text');
-    const progressFill = document.getElementById('progress-fill');
-    const fileNameInput = document.getElementById('fileNameInput');
-    let fileMap = new Map();
+const { jsPDF } = window.jspdf;
 
-    Sortable.create(preview, { animation: 150 });
+// 파일 목록: { file, objectURL } 순서는 DOM 순서로 관리
+const files = []; // { id, file, objURL }
+let uidCounter = 0;
 
-    function handleFiles(files) {
-        statusContainer.style.display = 'block';
-        for (let file of files) {
-            fileMap.set(file.name, file);
-            const div = document.createElement('div');
-            div.className = 'thumb-container';
-            div.dataset.fileName = file.name;
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                div.innerHTML = `<img src="${e.target.result}" class="thumb">`;
-                preview.appendChild(div);
-            };
-            reader.readAsDataURL(file.slice(0, 1024 * 500));
+const dropZone   = document.getElementById('drop-zone');
+const fileInput  = document.getElementById('file-input');
+const preview    = document.getElementById('preview');
+const dlBtn      = document.getElementById('dl-btn');
+const progWrap   = document.getElementById('prog-wrap');
+const progLabel  = document.getElementById('prog-label');
+const bar        = document.getElementById('bar');
+const badge      = document.getElementById('count-badge');
+
+// ── 드래그 & 드롭 ─────────────────────────────────
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => addFiles(e.target.files));
+
+// ── 파일 추가 (ObjectURL → 썸네일, RAM 절약) ──────
+function addFiles(list) {
+  for (const f of list) {
+    if (!f.type.startsWith('image/')) continue;
+    const id  = uidCounter++;
+    const url = URL.createObjectURL(f);           // 메모리 효율적
+    files.push({ id, file: f, objURL: url });
+
+    const wrap = document.createElement('div');
+    wrap.className = 'thumb-wrap';
+    wrap.dataset.id = id;
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+
+    const num = document.createElement('div');
+    num.className = 'thumb-num';
+
+    const del = document.createElement('button');
+    del.className = 'thumb-del';
+    del.textContent = '✕';
+    del.addEventListener('click', (e) => { e.stopPropagation(); removeFile(id, wrap); });
+
+    wrap.append(img, num, del);
+    preview.appendChild(wrap);
+  }
+  updateUI();
+  fileInput.value = '';   // 동일 파일 재선택 허용
+}
+
+// ── 개별 삭제 ────────────────────────────────────
+function removeFile(id, el) {
+  const idx = files.findIndex(f => f.id === id);
+  if (idx !== -1) {
+    URL.revokeObjectURL(files[idx].objURL);       // 즉시 메모리 해제
+    files.splice(idx, 1);
+  }
+  el.remove();
+  updateUI();
+}
+
+// ── 전체 삭제 ────────────────────────────────────
+function clearAll() {
+  files.forEach(f => URL.revokeObjectURL(f.objURL));
+  files.length = 0;
+  preview.innerHTML = '';
+  updateUI();
+  progWrap.style.display = 'none';
+}
+
+// ── 가나다순 정렬 (dir: 1=오름차순, -1=내림차순) ──
+function sortFiles(dir = 1) {
+  const domItems = [...preview.children];
+  domItems.sort((a, b) => {
+    const fa = files.find(f => f.id == a.dataset.id).file.name;
+    const fb = files.find(f => f.id == b.dataset.id).file.name;
+    return fa.localeCompare(fb, 'ko', { numeric: true }) * dir;
+  });
+  domItems.forEach(el => preview.appendChild(el));
+  updateUI();
+}
+
+// ── UI 상태 업데이트 (순번 갱신) ────────────────
+function updateUI() {
+  const count = preview.children.length;
+  dlBtn.disabled = count === 0;
+  badge.style.display = count ? 'block' : 'none';
+  badge.textContent = `파일 ${count}개`;
+  [...preview.children].forEach((el, i) => {
+    el.querySelector('.thumb-num').textContent = i + 1;
+  });
+}
+
+// ── Sortable (드래그 순서 변경) ──────────────────
+Sortable.create(preview, {
+  animation: 140,
+  ghostClass: 'sortable-ghost',
+  onEnd: updateUI,
+});
+
+// ── PDF 생성 (메모리 최소화) ──────────────────────
+async function makePDF() {
+  const items = [...preview.querySelectorAll('.thumb-wrap')];
+  if (!items.length) return;
+
+  const rawName = document.getElementById('fname').value.trim() || 'converted';
+  const safeName = rawName.replace(/[:\\/*?"<>|]/g, '_');
+
+  dlBtn.disabled = true;
+  progWrap.style.display = 'block';
+
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const PW = pdf.internal.pageSize.getWidth();
+  const PH = pdf.internal.pageSize.getHeight();
+
+  for (let i = 0; i < items.length; i++) {
+    setProgress(i, items.length);
+    if (i > 0) pdf.addPage();
+
+    const id   = Number(items[i].dataset.id);
+    const entry = files.find(f => f.id === id);
+    if (!entry) continue;
+
+    await new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        // 최대 해상도 2048px 제한 (속도 ↑, 품질은 충분)
+        const MAX = 2048;
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if (w > MAX || h > MAX) {
+          const s = MAX / Math.max(w, h);
+          w = Math.round(w * s); h = Math.round(h * s);
         }
-        document.getElementById('downloadBtn').disabled = false;
-        statusText.innerText = `${fileMap.size}개의 파일이 로드되었습니다.`;
-        progressFill.style.width = '0%';
-    }
 
-    function sortByName() {
-        const items = Array.from(preview.children);
-        items.sort((a, b) => a.dataset.fileName.localeCompare(b.dataset.fileName, undefined, {numeric: true}));
-        items.forEach(item => preview.appendChild(item));
-        statusText.innerText = "파일명 순으로 정렬되었습니다.";
-    }
-
-    async function generatePDF() {
-        const items = Array.from(preview.querySelectorAll('.thumb-container'));
-        if (items.length === 0) return;
-
-        // 파일 이름 및 특수문자 처리 추가
-        let rawFileName = fileNameInput.value.trim() || "converted_document";
-        let finalFileName = rawFileName.replace(/[:\\/*?"<>|]/g, "_"); 
-
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pw = pdf.internal.pageSize.getWidth();
-        const ph = pdf.internal.pageSize.getHeight();
-
-        document.getElementById('downloadBtn').disabled = true;
-        statusContainer.style.display = 'block';
-
-        for (let i = 0; i < items.length; i++) {
-            const percent = Math.round(((i + 1) / items.length) * 100);
-            statusText.innerText = `PDF 생성 중: ${i + 1} / ${items.length} (${percent}%)`;
-            progressFill.style.width = `${percent}%`;
-            
-            if (i > 0) pdf.addPage();
-            
-            const fileName = items[i].dataset.fileName;
-            const file = fileMap.get(fileName);
-            
-            await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        const maxDim = 2500;
-                        let w = img.width;
-                        let h = img.height;
-                        if (w > maxDim || h > maxDim) {
-                            const factor = maxDim / Math.max(w, h);
-                            w *= factor; h *= factor;
-                        }
-
-                        canvas.width = w; canvas.height = h;
-                        ctx.drawImage(img, 0, 0, w, h);
-                        
-                        const imgData = canvas.toDataURL('image/jpeg', 0.92);
-                        const ratio = Math.min(pw / w, ph / h);
-                        pdf.addImage(imgData, 'JPEG', (pw - w * ratio) / 2, (ph - h * ratio) / 2, w * ratio, h * ratio);
-                        resolve();
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
+        // OffscreenCanvas 지원 시 메인 스레드 부하 감소
+        let canvas, ctx;
+        try {
+          canvas = new OffscreenCanvas(w, h);
+          ctx = canvas.getContext('2d');
+        } catch {
+          canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          ctx = canvas.getContext('2d');
         }
 
-        pdf.save(`${finalFileName}.pdf`);
-        statusText.innerText = "저장 성공";
-        progressFill.style.width = '100%';
-        document.getElementById('downloadBtn').disabled = false;
-    }
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // OffscreenCanvas → Blob → dataURL 변환
+        const toDataURL = (cvs) => new Promise(res => {
+          if (cvs instanceof OffscreenCanvas) {
+            cvs.convertToBlob({ type: 'image/jpeg', quality: 0.88 })
+               .then(blob => {
+                 const fr = new FileReader();
+                 fr.onload = () => res(fr.result);
+                 fr.readAsDataURL(blob);
+               });
+          } else {
+            res(cvs.toDataURL('image/jpeg', 0.88));
+          }
+        });
+
+        toDataURL(canvas).then(dataURL => {
+          const ratio = Math.min(PW / w, PH / h);
+          const dx = (PW - w * ratio) / 2;
+          const dy = (PH - h * ratio) / 2;
+          pdf.addImage(dataURL, 'JPEG', dx, dy, w * ratio, h * ratio, '', 'FAST');
+          resolve();
+        });
+      };
+      img.src = entry.objURL;   // ObjectURL 재사용 (재독 없음)
+    });
+  }
+
+  setProgress(items.length, items.length);
+  progLabel.textContent = '✓ 저장 완료';
+  document.getElementById('prog-pct').textContent = '100%';
+  pdf.save(`${safeName}.pdf`);
+  dlBtn.disabled = false;
+}
+
+function setProgress(cur, total) {
+  const pct = Math.round((cur / total) * 100);
+  bar.style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  progLabel.textContent = cur < total
+    ? `PDF 생성 중 ${cur + 1} / ${total}`
+    : '저장 중…';
+}
 </script>
 </body>
 </html>
