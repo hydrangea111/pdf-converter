@@ -10,481 +10,470 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #f0ede8;
-    --card: #faf8f5;
-    --ink: #1c1917;
-    --ink2: #78716c;
-    --accent: #d97706;
-    --accent2: #fef3c7;
-    --border: #e7e5e0;
-    --danger: #dc2626;
-  }
+:root {
+--bg: #f0ede8;
+--card: #faf8f5;
+--ink: #1c1917;
+--ink2: #78716c;
+--accent: #d97706;
+--accent2: #fef3c7;
+--border: #e7e5e0;
+--danger: #dc2626;
+}
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Gowun Dodum', serif;
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 40px 16px 80px;
-  }
+body {
+background: var(--bg);
+color: var(--ink);
+font-family: 'Gowun Dodum', serif;
+min-height: 100vh;
+display: flex;
+align-items: flex-start;
+justify-content: center;
+padding: 40px 16px 80px;
+}
 
-  .wrap {
-    width: 100%;
-    max-width: 520px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
+.wrap {
+width: 100%;
+max-width: 520px;
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
 
-  header {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    padding: 4px 0 8px;
-    border-bottom: 2px solid var(--ink);
-  }
+header {
+display: flex;
+align-items: baseline;
+gap: 10px;
+padding: 4px 0 8px;
+border-bottom: 2px solid var(--ink);
+}
 
-  header h1 {
-    font-family: 'DM Mono', monospace;
-    font-size: 20px;
-    letter-spacing: -0.5px;
-  }
+header h1 {
+font-family: 'DM Mono', monospace;
+font-size: 20px;
+letter-spacing: -0.5px;
+}
 
-  header span {
-    font-size: 12px;
-    color: var(--ink2);
-    font-family: 'DM Mono', monospace;
-  }
+header span {
+font-size: 12px;
+color: var(--ink2);
+font-family: 'DM Mono', monospace;
+}
 
-  /* drop zone */
-  #drop-zone {
-    background: var(--card);
-    border: 1.5px dashed #c4bfb9;
-    border-radius: 12px;
-    padding: 36px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-    user-select: none;
-  }
-  #drop-zone.dragover {
-    border-color: var(--accent);
-    background: var(--accent2);
-  }
+/* drop zone */
+#drop-zone {
+background: var(--card);
+border: 1.5px dashed #c4bfb9;
+border-radius: 12px;
+padding: 36px 20px;
+text-align: center;
+cursor: pointer;
+transition: border-color .15s, background .15s;
+user-select: none;
+}
+#drop-zone.dragover {
+border-color: var(--accent);
+background: var(--accent2);
+}
 
-  #drop-zone .icon {
-    font-size: 32px;
-    margin-bottom: 10px;
-    display: block;
-  }
+#drop-zone .icon {
+font-size: 32px;
+margin-bottom: 10px;
+display: block;
+}
 
-  #drop-zone p {
-    font-size: 14px;
-    color: var(--ink2);
-    line-height: 1.6;
-  }
+#drop-zone p {
+font-size: 14px;
+color: var(--ink2);
+line-height: 1.6;
+}
 
-  #drop-zone strong { color: var(--ink); }
+#drop-zone strong { color: var(--ink); }
 
-  /* preview grid */
-  #preview {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
+/* preview grid */
+#preview {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 8px;
+}
 
-  .thumb-wrap {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--card);
-    border: 1px solid var(--border);
-    cursor: grab;
-    aspect-ratio: 3/4;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06);
-    transition: box-shadow .15s;
-  }
-  .thumb-wrap:active { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.thumb-wrap {
+position: relative;
+border-radius: 8px;
+overflow: hidden;
+background: var(--card);
+border: 1px solid var(--border);
+cursor: grab;
+aspect-ratio: 3/4;
+box-shadow: 0 1px 3px rgba(0,0,0,.06);
+transition: box-shadow .15s;
+}
+.thumb-wrap:active { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
 
-  .thumb-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    pointer-events: none;
-  }
+.thumb-wrap img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+pointer-events: none;
+}
 
-  .thumb-num {
-    position: absolute;
-    bottom: 4px;
-    right: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    background: rgba(0,0,0,.55);
-    color: #fff;
-    border-radius: 4px;
-    padding: 1px 4px;
-    pointer-events: none;
-  }
+.thumb-num {
+position: absolute;
+bottom: 4px;
+right: 5px;
+font-family: 'DM Mono', monospace;
+font-size: 10px;
+background: rgba(0,0,0,.55);
+color: #fff;
+border-radius: 4px;
+padding: 1px 4px;
+pointer-events: none;
+}
 
-  .thumb-del {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 20px;
-    height: 20px;
-    background: rgba(220,38,38,.8);
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    font-size: 12px;
-    line-height: 20px;
-    text-align: center;
-    cursor: pointer;
-    display: none;
-    padding: 0;
-  }
-  .thumb-wrap:hover .thumb-del { display: block; }
+.thumb-del {
+position: absolute;
+top: 4px;
+right: 4px;
+width: 20px;
+height: 20px;
+background: rgba(220,38,38,.8);
+color: #fff;
+border: none;
+border-radius: 50%;
+font-size: 12px;
+line-height: 20px;
+text-align: center;
+cursor: pointer;
+display: none;
+padding: 0;
+}
+.thumb-wrap:hover .thumb-del { display: block; }
 
-  /* controls */
-  .controls {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+/* controls */
+.controls {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 16px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
 
-  .field label {
-    display: block;
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    color: var(--ink2);
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: 6px;
-  }
+.field label {
+display: block;
+font-size: 11px;
+font-family: 'DM Mono', monospace;
+color: var(--ink2);
+text-transform: uppercase;
+letter-spacing: .05em;
+margin-bottom: 6px;
+}
 
-  .field input {
-    width: 100%;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: var(--ink);
-    outline: none;
-    transition: border-color .15s;
-  }
-  .field input:focus { border-color: var(--accent); }
+.field input {
+width: 100%;
+border: 1px solid var(--border);
+background: var(--bg);
+border-radius: 8px;
+padding: 10px 12px;
+font-family: 'DM Mono', monospace;
+font-size: 13px;
+color: var(--ink);
+outline: none;
+transition: border-color .15s;
+}
+.field input:focus { border-color: var(--accent); }
 
-  .row { display: flex; gap: 8px; }
+.row { display: flex; gap: 8px; }
 
-  .btn {
-    flex: 1;
-    padding: 10px 8px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    background: var(--card);
-    font-family: 'Gowun Dodum', serif;
-    font-size: 13px;
-    color: var(--ink);
-    cursor: pointer;
-    transition: background .12s, border-color .12s;
-    white-space: nowrap;
-  }
-  .btn:hover { background: var(--bg); border-color: #a8a29e; }
-  .btn:active { background: #e7e5e0; }
+.btn {
+flex: 1;
+padding: 10px 8px;
+border: 1.5px solid var(--border);
+border-radius: 8px;
+background: var(--card);
+font-family: 'Gowun Dodum', serif;
+font-size: 13px;
+color: var(--ink);
+cursor: pointer;
+transition: background .12s, border-color .12s;
+white-space: nowrap;
+}
+.btn:hover { background: var(--bg); border-color: #a8a29e; }
+.btn:active { background: #e7e5e0; }
 
-  .btn-primary {
-    background: var(--ink);
-    color: #fff;
-    border-color: var(--ink);
-    font-size: 14px;
-    padding: 12px;
-  }
-  .btn-primary:hover { background: #44403c; border-color: #44403c; }
-  .btn-primary:disabled { background: #c4bfb9; border-color: #c4bfb9; cursor: not-allowed; }
+.btn-primary {
+background: var(--ink);
+color: #fff;
+border-color: var(--ink);
+font-size: 14px;
+padding: 12px;
+}
+.btn-primary:hover { background: #44403c; border-color: #44403c; }
+.btn-primary:disabled { background: #c4bfb9; border-color: #c4bfb9; cursor: not-allowed; }
 
-  /* progress */
-  #prog-wrap {
-    display: none;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-  }
+/* progress */
+#prog-wrap {
+display: none;
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px 16px;
+}
 
-  #prog-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--ink2);
-    margin-bottom: 8px;
-  }
+#prog-label {
+font-family: 'DM Mono', monospace;
+font-size: 12px;
+color: var(--ink2);
+margin-bottom: 8px;
+}
 
-  .bar-bg {
-    height: 5px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  #bar { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .18s ease; }
+.bar-bg {
+height: 5px;
+background: var(--border);
+border-radius: 99px;
+overflow: hidden;
+}
+#bar { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .18s ease; }
 
-  /* count badge */
-  #count-badge {
-    display: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--ink2);
-    text-align: right;
-  }
+/* count badge */
+#count-badge {
+display: none;
+font-family: 'DM Mono', monospace;
+font-size: 11px;
+color: var(--ink2);
+text-align: right;
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
-    <img src="data:image/png;base64,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" alt="logo" style="width:32px;height:32px;object-fit:contain;border-radius:6px;flex-shrink:0">
-    <h1>JPG → PDF</h1>
-    <span id="count-badge">파일 0개</span>
-  </header>
+<header>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAUoElEQVR42pWbebAldXXHP+fXffvet7+ZNzM6b0AGEgSULeIS0CRER4maiIgpE0sILolbQkpjlVSkMFhuxCWJJGgQglKkKBWVWIoQoaJRTIKAYsSlQIaZgRln5s289e63fyd/9Pb7dfcdza16M+/d27e7f+d3lu/3e04LoHMTJ3LOCe9i2+xZBCZCASF9SfKPqvdu/pkUB6UvRa2iokj2qQho9imgmp9XsqtJ/mH+uzq3oM7RlSsqiDgHVl6a/6s65NDaQ9z/+EdZ7T6GzE2cpC867VPMto5jZNto/SWcd8W9o/yq+Zqyo7VsJLzlZAtizPXqX8L//+WfS0RoBNOs9fZx98NvRl546nV6/Obz6Y+WCUyj+vWqOyTWzj7ztsHfMfceih2q26aa90RA1ffGigG05vtj3SDxRMDqkCjczL6j92C2zp7FyG4Ui9diPar6K9hVC7dNb7Dua5l3q+NN6i1KkmuWDFOEWHbu7Aw6xiPGe092XyINhvE6W2fOIgwkHOtlmm6EMeLELF6MJnGp/gmye0uDU9zzZYawmi2p5qKlEFPHXMKxvafWLkXYupsamoiQIg3530yTmAi010eMYryk5i9aHesWrjvOccOGMDkZOJ5Stzgds5nie96YxKwlrxAkiT7HHRUhrBhO/DCIR5Zzz59jYUuE2sQwdQkrSY7quFrxfmYOVQgCOLB/wEP3rRNGZmxqG+fgSJ1h6u7HPayoHsUviWeF9e6iGBE6GyPeetVOTt21jccPjmg0/JMeO/5cSxa7OxwoL1sM+c6t+7nl2ieZng1Qi1dl1Clb2d9SzbWU6o6bph1DiZecEfHDoHySzFbDgWVhW4Pn7Frg/Pcf4QeP9Gk2DVbrw8s1sbsH4pR5MdDbsOw6d5JbX7+V2248gLVF2FT2T0nxRBEfksWxU16TVCPF1d2ETIFH6hwnTL6sTj2XrALRaBg2OpbuQJmbMUSheFHlxa0We6YKRkDEpFm7qGyBEdbalk7XEgSCtWUf0kq5LRJhKQVIZlypTcJF6KkHxlz/CYuLVKPO2qQCGIHYgqrvnpn5XUCTLb4/hM4gZiISmg0htsn7VpUwSIxchIbmaE5wXFQy0JSbO/mstsz6hRnre0JdiVQFcyyUVZce1E0oFKUly8nGQKdv2Ton/P45LbbPC+2exeBVs0r1yLHHMcqdV1uk+p1jA0KtDYOwvNQMxmrNXSg1BT0DbSQ73B0ozzi+we1XbGbH5oCDyzEXXXOUh/YMmW6ZqkG1KLdeXhEfVHmLND5EqsVrIrUltLR9GPGD2I8m0XKhc/5K/jcGjCRhYgQ6feUNL5pkx+aQtU7MUzaFvOnFk3T7ijFaSpji76iUdrcU/jmO1AIH/Cq7n8BwqfXrsCgJDueSdIFuydEkQboYQQQ6PUVEaQTQihJD7DscAzA7kez43sMjjNF0q6yTnGKSdzI0XaxcPbSZfKtIbinkOBYOSMmHeJbVki9oVgXqUJaT6Wt8LQhgZcPy5pdM8ZrzJnjTdcscWLFsmhRuuKfNCVtifusZId/9cZvrv77O5pZADEbBWEuvp8TSyXNVRrcTviTFAp2MruIuRz2KLlKEURJSDYyE6aaNQ4xCUti0XDtxiEfNdwX6A+VpW0Pe98czbJoKuPIPZ/mTa5fZNgu9fp/L/3mJlnRZO9KDhhKa5HvDgbI01eDJJ1ocOvhkigOyZCiOocUHPFLgeEGccCjKSWYAIw0iM0UjmGJyZopGFKQoVtJDE29UgdBlcjnNzTNuemApSgIDR7vKB183xaapgN4g5o9eMMENd7e575Eus40hIhtMhgMuetUOmq0Iay3GCIOhZXFLwMKJERdcFnggpoweXRrr3YL6HpmnNsn+DgjNBKE0eeS+Ixza16fZKriHahEcORQW8QuO1HCDLOm1e8pZOxu8/ncnia0lECEMhCtfPcPL399Bw5jecMSt7zmdC2YPwMG90AiLxGGV/gHljAuCeihd0SC0vjC78et5sWJji2lFLF92Ju/505+zfGhIIxIHF2ZlUHO84dFQcRKJS76MEbpD5d0XTTPZNAxHliCAUWzZdVaLC587yRfuXuG3z5xi12kRu599Mf3duzGtFpr4ewKexCFNGfTUurpWuqkSCKvw2CxJimD7Q077/n9x4lnbOPiVvUTNCLXq7WhYIMeMMqpHNt0SFRhY61hecGrEq8+dII4tgXFvRrniomnuuFf4i9+bwNgRBA2iTfNIFOUG0GOKWy44kmoCdum24xy5QaVAZLbdJu4OUv5Sf8XQ9S7VXyK7Jd7Ley6eJgxgOFKC1AWNEdQqZ5wQ8pnLZzl9R4/BIDHa0MYJrk6Bvxjjx5wqboCKSMKcssVYW0mASV5wAFx2DuucM7bJtVy/KUVUKONkNgcYCRAaWGkrL31Wk5ec3WQUK4GpR4q7zmzy5OGuz5Gc7dFuB+I4CdvAIM0WhCEax4lhBgN0OCyye9SEKII4xRBJOUETlaag3GFIwtnVxekl4c2XJUNfpS2gbVZXM9BiLUw2hSsummYUU2sAAWKrrHVsQp48hCcoFjFC65lnIDMziAmwG+sMHt9NvLSEmZvDDodExz+NcHERTIB22gz37GF4YD9mZgaMQUcjGtsXCWdnscNRXkVGy8uMVpaRIPA0wLJi5hKt0MfI4qNuzeoqrHctLz+nxW8+vZl8MQjqYyo0bJkxaGwK2KsJcrJHl5l/2+Vs/eCHk3KSvkb7n+ToRz/C6qc/RePkp7N41z2ECwv55/H6Oqs3XM/yR65BhwPCha0sfvUuGjt2eNfu/+xn7Dv/+YlnGakBilIqMZLmAKlPEpkhrCqtSPjxvhHXf2ODbXMmR3COlpFUOBuzdrTHcDjgteepJ65iLcGORTCG1VtupnvvvTRO3Mn8W97Oto//Pf0f/oD4yFHChQUGu3ez/A9/h5mfZ+bii9n8jr8i2LKVQ29+I+b4nYTbFxnu38/qTTdCI0SCkOFjP3cqo1JmWCJV0BzmCSTj4mX9JF1oFMJKx/Lnn15NVOKazC2A6IhB+yhPnenyqucsEhhh6B7Z74Mq3bu/werNt0AAw8ce46mfvJ6JF+5i7aZ/AVWG+/aycu21yGST1es+wY5/+xpzl1zK6vWfJD50CDHCcPdjLF15FTIRItYizSZmZuaXJHPHy1UxCfV0uzTqCRQIrGwoq22l3VNCkxxpJBETsp8gZYOFgi41UkWKLUSQKMJMNjCNALu87IOaNPEFC5tobN+Odrus3vxZUKX1/BckRgRkYoLmzh20TjyR5oknEczMVOGSoxipOvej+KpwOVMEgbC6MqJhlbe+YoZ7f9RlcsLVBKWst6ZKTEx7dYLp0BIG4omYLpUJdhxH85RTCXeexMJVV4Mx9O79NqYZpSezaDxKqkEjYnRgP4gQPnV7UuP7A1q/8Sx2PrIbjS0mDFm+7h9ZuvIKzPzmtORqhWq7DZoiBzhmkyJn0etarrt6N5e+fQdvPH3SERjr21iIEI9GLB1pst4d0gzUle6S3UiT55b3Xg3vvTo/xZGPf5TOt75J8/Qza/dEwqS86aAP1iKBIV5aYuNrX0WCAAkCeg8+CGFUgsUlpKglOlzVSxJIalFak4Yf/s8q7/zvVRoNUyIuVRYJMGJAu7PE9JYRN/zrYq4WaYoA1SZawerNN9N/6PtoHNN74HsMHv4R0mp5GVWCAMIQuh2iU08DEYaPPprcaRgyePQRDr7+DZiZBGZLFGGmpkEtSFaF0m611rfNwjphUbK6bWEi7eDEsTI7H9BpK/FIkzLjIIqciqrQDxMP8rlEitviBBW2v3Ena7fcSjA/hYQhZnYO7WwkN28tDAbYoyvQbROdehrzf/YWbKdD51vfxExNJQs2AeG2TcjkZBo1NlFvpdoDyXKBuEqKZjngGPDXxgkqtSNl8YQJntzTY215RGCKvr/PG7Rk6ULFVWuR1gQYQ7h5M+H8FMHCZnQ4SjxDU1c3huj0M3jKTZ8hmJ9j6oKXIs0mh95xOaO9e4ieeQZiDGZyAh2NkDh2lGS3JV3Xnve7bqEXF5m7ZnjcCfHhQNmyPaLbjRNqmYaE2wDRDGeqq+NLBiagEdF/+Ef0f/oTBo8+ggQmXXzKEsOQePkInfu/R/OUU5i55BK026P7vftY+adP0LnrToKFBezyEboPPkD/gfsT0SZjmDVN87r2PT4UrmZIt5mQlch4pGxaiBAj/PT7bSbyFpM6UpTfQPVQp40xM9Ns3P4l1r9ye1K3JyaThAZobJEwxC4vs//Cl2Nm55Kg7PexKyuIKmZ2NiFGvS5PvOwlSR2fTM5R7GoBAtSWeggOzc7ytlHXh9XvyvtARzGBcO6uzYyGFjHq8/bciLa2F5HskiCNBsYYxCMtmfKpEIYJl18+ij16FLpdgpnpZPFxnCaaANNoYKJoTOOjcGn1pPWCH2XvGais36eYmRIUCMtLA84+bxNnPHeWlSNDwkgwgTDoW0YDTeC91vds8tu0OdsqaLFI4m0mF/UwUYQ0mwnDs4rGcXGP6lJorXRcRGRMV0cq9dCUj8y77uLqr0IQCr/Y10dEecc1v87Jp0+xfHjI2vKQZ//OPNt2RKyvjTChVDaiyEkKNkZ7vfzHZr/3kx/6Pej10F43+RmNSs2kUukVKUiJSG2P2u+V+B4T5uK31IAPKTyhORHw2E/aHHyix1OOm+B9N57GnZ8/yF2fO8jZ585x2btO4Ko3PcyBJzYwgThqcpGK1VrMzDTB/KacfWZ9v8osUrpQ297ArqyimXtpibOWM56I37kSPEU5ey8L81CkhOykflYmCJSN1RFfvOEAb/ubk2hNBLzqDcfxiku30+tYpmcbfOAzp/OBy/+XHz54hKkFtymvCbdfXWX6ksvY9JfvTCBuEBTTGw4dFwSNYyRqsP6l21j663cTzM8XNX7M7JKU9BwpAQKvcZ9eLoTK0I/XkchYk8YwNRtyz5cOsbizxSsvWwSSQYqpmYDRMGZhW5MP33wmb3nlYVbX22n2T88bx5iZGdZv+xztO+/wkrIIpSaHIyC32wTT08niK/Mf4hkkB+pSarUV+kdpsi1tjcnYeSOtzABMTAd89mN72P3TNhdetp2TTp3KtCAA7v7yQQ4fGDC1KajQUhWBbo94Y6NEo0oSt0NaxQQ5f6B+msmTxt2mrttKV61vfYfHGrqS8tBXeg/TsyHfvmOJ+/7jKDufPsFr3no8Z5+3iS/euI+bPvZzrPFnBnNpzSoShIm+h0ubExQlaJ6o896QKqL+YM6YTlcCqFJMUCfyVOR0cbmAVIuX14J2zmJtYgSAB/5zleecv5kn9/S48W/3Mr/QYG0jvRm3qqT9c7uxjnY6tWnam3+SUrdSyzI4DsFJc0drIhVE3ObGuBHKjA6XRl11jBHc0TdBsHFyxm2LLb711SP84oke85sbKMNc9HDH5ggMdmODqV0vZuYPLsSORikOKDVl0hiWcRO0UpOvrIUgpHvvd1i/7fMJWVJfEXYrmht2RWtMS8NVWUKpo5HqVSoOPtFPuYFirXpQ2O36StpWtsagkvxIprrm7p82Pkx5cMPR+jSVoyjKrRhTUG53eFXrQV4Wz6G43VfUSaxaGonTWpis6eBjzgsopj6ccQ+wFjM5Seff72Lj9i/nqowcc75X/NbZ2MG85DjTauV8AWcoSjwVyE0PhvDY8xWOTpj17KXmU3VH1iXV5G3FZVQtZnoaMzdXHYstxYE4c0F5d1iPPUWe6AFx7vNaAotV0ARhac7dQZjiQWwpoXql2nFyY0wr3YjUCKMR2u0584WV2HMSV14Ma/lJ5RUECXfwUAHeEHZlbFdL1vHE2QxUlHroUlZbStKLe8viZiEbE0xOEczPJ8PSLobXbGihmnvEqffqGC0HUKqJULq+Try+jhpf487JliS5w5sUlcrelgSRNCVrKSFVd7esuFh/qMkE2LVVZl93aQKFBwMIg+pQRJmY6DFm9rJj4hiJItY//zmW3nslZm4+kdbwO9dI9RmHPAS8wUUPMmpNjEpJbhan5Ggp2DIiFGOmZ1j/4hdo3/V16oazPOPX2SXbqJKhVBONUjsdZHq60PFKHeGiIhUzh+F4RqU5JdZyl7FuJF3cvoYpTaU5IdTtplC4Hn6743Gu6OoBsbwy+PAwk8ez8d9C0fJZphuxoTdwUHLnHH15FHP8cxnZ7E1gmgTZ4FMQIGGACYLEkGFY7LmL/bXAAfksQGmyW8ZdW8STewRQYxIOkSlAJbE2A3khXu2vmdfXErPSY0zLpxpLIC2isEEQGIZLRxj+4jCmGXmL0WywYsyitA7Ja8mrVMdjfhFsp4/GsSfSlCPPG5fP+wHqcrUxxX8MZhAMURTRXxPaoxY7P3QV3UcfS1pe7nxOhgKd/Rg3IeaNzXhP2DkYoZxLrGKiBsHJp3B4z0GCKPBRrSY4QV77vPvUJRbF8NK4IUyt0E/xUlTS+u91Y04+Y5YXXfJrNJpBib/XcTSpPLkgQikEpGaSrvS5W8mM4cG79vHdOw4WY3IlGiGvfd59nuN76ozUigT+TJH3BKB61aTfVwadodeZdeM+4+tJl6lAkupOjKG1OjXelHj2cJZUtIwwajAxHeTwvDxvGJZna/PHVCqj4XqMeqyVSXJViFpCa7LpPwPgDmSqVnoI9c8LjmMBzrFS86nmM1bOuL3DUkQTLlCT5GvH4r3nGOpgiTeBlUyNxVY9ATSf661w8+LBKy0NNmmpces+5FGGxvkTber2A4t5gPLUgrE6rMSw/pKHMMuGkFpLlHfW5eXqaw3+0xe1Kk518VSYjThagYyTyB39L9Yh5sjGw4TBNFaH3mCiJ7eXRvrLHlt52kEpJS6pdR0tjeKpGxbjSV/1PRFv4l1Ko6+q7sPTYHVEFM6wtP4Q5v7d17De3UszmC8lfKl2jMbNFGqNRq9Unieua9FKZYfKSVcLwqPjbeI+UjvuMYrs2GZjE+u9vdy/+yPJrc5N7OScE97JttmzCUwT6woa46ifSC0R8pUgKiVKy7xfqoM23v4p3lOpIr6XVJ4QFRmPVhWsDji8nj0+/zj/B4hDAcgAkxE0AAAAAElFTkSuQmCC" alt="logo" style="width:32px;height:32px;object-fit:contain;border-radius:6px;flex-shrink:0">
+<h1>JPG → PDF</h1>
+<span id="count-badge">파일 0개</span>
+</header>
 
-  <div id="drop-zone">
-    <span class="icon">📂</span>
-    <p><strong>클릭하거나 여기에 파일을 드래그</strong><br>JPG, PNG, WEBP 등 이미지 파일</p>
-    <input type="file" id="file-input" multiple accept="image/*" style="display:none">
-  </div>
+<div id="drop-zone">
+<span class="icon">📂</span>
+<p><strong>클릭하거나 여기에 파일을 드래그</strong><br>JPG, PNG, WEBP 등 이미지 파일</p>
+<input type="file" id="file-input" multiple accept="image/*" style="display:none">
+</div>
 
-  <div id="preview"></div>
+<div id="preview"></div>
 
-  <div class="controls">
-    <div class="field">
-      <label>저장 파일명</label>
-      <input type="text" id="fname" placeholder="파일명 (기본: converted)">
-    </div>
-    <div class="row">
-      <button class="btn" onclick="sortFiles(1)">가나다순 ↑</button>
-      <button class="btn" onclick="sortFiles(-1)">가나다순 ↓</button>
-      <button class="btn" onclick="clearAll()">전체 삭제</button>
-    </div>
-    <button class="btn btn-primary" id="dl-btn" disabled onclick="makePDF()">PDF 저장</button>
-  </div>
+<div class="controls">
+<div class="field">
+<label>저장 파일명</label>
+<input type="text" id="fname" placeholder="파일명 (기본: converted)">
+</div>
+<div class="row">
+<button class="btn" onclick="sortFiles(1)">가나다순 ↑</button>
+<button class="btn" onclick="sortFiles(-1)">가나다순 ↓</button>
+<button class="btn" onclick="clearAll()">전체 삭제</button>
+</div>
+<button class="btn btn-primary" id="dl-btn" disabled onclick="makePDF()">PDF 저장</button>
+</div>
 
-  <div id="prog-wrap">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div id="prog-label" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2)">준비 중…</div>
-      <div id="prog-pct" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--accent)">0%</div>
-    </div>
-    <div class="bar-bg"><div id="bar"></div></div>
-  </div>
+<div id="prog-wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div id="prog-label" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2)">준비 중…</div>
+<div id="prog-pct" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--accent)">0%</div>
+</div>
+<div class="bar-bg"><div id="bar"></div></div>
+</div>
 
 </div>
 
 <script>
 const { jsPDF } = window.jspdf;
 
-// 파일 목록: { file, objectURL } 순서는 DOM 순서로 관리
 const files = []; // { id, file, objURL }
 let uidCounter = 0;
 
-const dropZone   = document.getElementById('drop-zone');
-const fileInput  = document.getElementById('file-input');
-const preview    = document.getElementById('preview');
-const dlBtn      = document.getElementById('dl-btn');
-const progWrap   = document.getElementById('prog-wrap');
-const progLabel  = document.getElementById('prog-label');
-const bar        = document.getElementById('bar');
-const badge      = document.getElementById('count-badge');
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const preview = document.getElementById('preview');
+const dlBtn = document.getElementById('dl-btn');
+const progWrap = document.getElementById('prog-wrap');
+const progLabel = document.getElementById('prog-label');
+const bar = document.getElementById('bar');
+const badge = document.getElementById('count-badge');
 
-// ── 드래그 & 드롭 ─────────────────────────────────
+// 드래그 & 드롭
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  addFiles(e.dataTransfer.files);
+e.preventDefault();
+dropZone.classList.remove('dragover');
+addFiles(e.dataTransfer.files);
 });
 fileInput.addEventListener('change', e => addFiles(e.target.files));
 
-// ── 파일 추가 (ObjectURL → 썸네일, RAM 절약) ──────
+// 파일 추가
 function addFiles(list) {
-  for (const f of list) {
-    if (!f.type.startsWith('image/')) continue;
-    const id  = uidCounter++;
-    const url = URL.createObjectURL(f);           // 메모리 효율적
-    files.push({ id, file: f, objURL: url });
+for (const f of list) {
+if (!f.type.startsWith('image/')) continue;
+const id = uidCounter++;
+const url = URL.createObjectURL(f);
+files.push({ id, file: f, objURL: url });
 
-    const wrap = document.createElement('div');
-    wrap.className = 'thumb-wrap';
-    wrap.dataset.id = id;
+const wrap = document.createElement('div');
+wrap.className = 'thumb-wrap';
+wrap.dataset.id = id;
 
-    const img = document.createElement('img');
-    img.src = url;
-    img.loading = 'lazy';
-    img.decoding = 'async';
+const img = document.createElement('img');
+img.src = url;
+img.loading = 'lazy';
+img.decoding = 'async';
 
-    const num = document.createElement('div');
-    num.className = 'thumb-num';
+const num = document.createElement('div');
+num.className = 'thumb-num';
 
-    const del = document.createElement('button');
-    del.className = 'thumb-del';
-    del.textContent = '✕';
-    del.addEventListener('click', (e) => { e.stopPropagation(); removeFile(id, wrap); });
+const del = document.createElement('button');
+del.className = 'thumb-del';
+del.textContent = '✕';
+del.addEventListener('click', (e) => { e.stopPropagation(); removeFile(id, wrap); });
 
-    wrap.append(img, num, del);
-    preview.appendChild(wrap);
-  }
-  updateUI();
-  fileInput.value = '';   // 동일 파일 재선택 허용
+wrap.append(img, num, del);
+preview.appendChild(wrap);
+}
+updateUI();
+fileInput.value = ''; 
 }
 
-// ── 개별 삭제 ────────────────────────────────────
+//  개별 삭제
 function removeFile(id, el) {
-  const idx = files.findIndex(f => f.id === id);
-  if (idx !== -1) {
-    URL.revokeObjectURL(files[idx].objURL);       // 즉시 메모리 해제
-    files.splice(idx, 1);
-  }
-  el.remove();
-  updateUI();
+const idx = files.findIndex(f => f.id === id);
+if (idx !== -1) {
+URL.revokeObjectURL(files[idx].objURL);
+files.splice(idx, 1);
+}
+el.remove();
+updateUI();
 }
 
-// ── 전체 삭제 ────────────────────────────────────
+// 전체 삭제
 function clearAll() {
-  files.forEach(f => URL.revokeObjectURL(f.objURL));
-  files.length = 0;
-  preview.innerHTML = '';
-  updateUI();
-  progWrap.style.display = 'none';
+files.forEach(f => URL.revokeObjectURL(f.objURL));
+files.length = 0;
+preview.innerHTML = '';
+updateUI();
+progWrap.style.display = 'none';
 }
 
-// ── 가나다순 정렬 (dir: 1=오름차순, -1=내림차순) ──
+// 가나다순 정렬 (dir: 1=오름차순, -1=내림차순)
 function sortFiles(dir = 1) {
-  const domItems = [...preview.children];
-  domItems.sort((a, b) => {
-    const fa = files.find(f => f.id == a.dataset.id).file.name;
-    const fb = files.find(f => f.id == b.dataset.id).file.name;
-    return fa.localeCompare(fb, 'ko', { numeric: true }) * dir;
-  });
-  domItems.forEach(el => preview.appendChild(el));
-  updateUI();
+const domItems = [...preview.children];
+domItems.sort((a, b) => {
+const fa = files.find(f => f.id == a.dataset.id).file.name;
+const fb = files.find(f => f.id == b.dataset.id).file.name;
+return fa.localeCompare(fb, 'ko', { numeric: true }) * dir;
+});
+domItems.forEach(el => preview.appendChild(el));
+updateUI();
 }
 
-// ── UI 상태 업데이트 (순번 갱신) ────────────────
+// UI 상태 업데이트
 function updateUI() {
-  const count = preview.children.length;
-  dlBtn.disabled = count === 0;
-  badge.style.display = count ? 'block' : 'none';
-  badge.textContent = `파일 ${count}개`;
-  [...preview.children].forEach((el, i) => {
-    el.querySelector('.thumb-num').textContent = i + 1;
-  });
+const count = preview.children.length;
+dlBtn.disabled = count === 0;
+badge.style.display = count ? 'block' : 'none';
+badge.textContent = 파일 ${count}개`;
+[...preview.children].forEach((el, i) => {
+el.querySelector('.thumb-num').textContent = i + 1;
+});
 }
 
-// ── Sortable (드래그 순서 변경) ──────────────────
+// 드래그 순서 변경
 Sortable.create(preview, {
-  animation: 140,
-  ghostClass: 'sortable-ghost',
-  onEnd: updateUI,
+animation: 140,
+ghostClass: 'sortable-ghost',
+onEnd: updateUI,
 });
 
-// ── PDF 생성 (메모리 최소화) ──────────────────────
+// PDF 생성
 async function makePDF() {
-  const items = [...preview.querySelectorAll('.thumb-wrap')];
-  if (!items.length) return;
+const items = [...preview.querySelectorAll('.thumb-wrap')];
+if (!items.length) return;
 
-  const rawName = document.getElementById('fname').value.trim() || 'converted';
-  const safeName = rawName.replace(/[:\\/*?"<>|]/g, '_');
+const rawName = document.getElementById('fname').value.trim() || 'converted';
+const safeName = rawName.replace(/[:\/*?"<>|]/g, '_');
 
-  dlBtn.disabled = true;
-  progWrap.style.display = 'block';
+dlBtn.disabled = true;
+progWrap.style.display = 'block';
 
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const PW = pdf.internal.pageSize.getWidth();
-  const PH = pdf.internal.pageSize.getHeight();
+const pdf = new jsPDF('p', 'mm', 'a4');
+const PW = pdf.internal.pageSize.getWidth();
+const PH = pdf.internal.pageSize.getHeight();
 
-  for (let i = 0; i < items.length; i++) {
-    setProgress(i, items.length);
-    if (i > 0) pdf.addPage();
+for (let i = 0; i < items.length; i++) {
+setProgress(i, items.length);
+if (i > 0) pdf.addPage();
 
-    const id   = Number(items[i].dataset.id);
-    const entry = files.find(f => f.id === id);
-    if (!entry) continue;
+const id = Number(items[i].dataset.id);
+const entry = files.find(f => f.id === id);
+if (!entry) continue;
 
-    await new Promise(resolve => {
-      const img = new Image();
-      img.onload = () => {
-        // 최대 해상도 2048px 제한 (속도 ↑, 품질은 충분)
-        const MAX = 2048;
-        let w = img.naturalWidth, h = img.naturalHeight;
-        if (w > MAX || h > MAX) {
-          const s = MAX / Math.max(w, h);
-          w = Math.round(w * s); h = Math.round(h * s);
-        }
+await new Promise(resolve => {
+const img = new Image();
+img.onload = () => {
+const MAX = 2048;
+let w = img.naturalWidth, h = img.naturalHeight;
+if (w > MAX || h > MAX) {
+const s = MAX / Math.max(w, h);
+w = Math.round(w * s); h = Math.round(h * s);
+}
 
-        // OffscreenCanvas 지원 시 메인 스레드 부하 감소
-        let canvas, ctx;
-        try {
-          canvas = new OffscreenCanvas(w, h);
-          ctx = canvas.getContext('2d');
-        } catch {
-          canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          ctx = canvas.getContext('2d');
-        }
+const canvas = document.createElement('canvas');
+canvas.width = w;
+canvas.height = h;
 
-        ctx.drawImage(img, 0, 0, w, h);
+const ctx = canvas.getContext('2d');
+ctx.drawImage(img, 0, 0, w, h);
 
-        // OffscreenCanvas → Blob → dataURL 변환
-        const toDataURL = (cvs) => new Promise(res => {
-          if (cvs instanceof OffscreenCanvas) {
-            cvs.convertToBlob({ type: 'image/jpeg', quality: 0.88 })
-               .then(blob => {
-                 const fr = new FileReader();
-                 fr.onload = () => res(fr.result);
-                 fr.readAsDataURL(blob);
-               });
-          } else {
-            res(cvs.toDataURL('image/jpeg', 0.88));
-          }
-        });
+const dataURL = canvas.toDataURL('image/jpeg', 0.88);
 
-        toDataURL(canvas).then(dataURL => {
-          const ratio = Math.min(PW / w, PH / h);
-          const dx = (PW - w * ratio) / 2;
-          const dy = (PH - h * ratio) / 2;
-          pdf.addImage(dataURL, 'JPEG', dx, dy, w * ratio, h * ratio, '', 'FAST');
-          resolve();
-        });
-      };
-      img.src = entry.objURL;   // ObjectURL 재사용 (재독 없음)
-    });
-  }
+const ratio = Math.min(PW / w, PH / h);
+const dx = (PW - w * ratio) / 2;
+const dy = (PH - h * ratio) / 2;
 
-  setProgress(items.length, items.length);
-  progLabel.textContent = '✓ 저장 완료';
-  document.getElementById('prog-pct').textContent = '100%';
-  pdf.save(`${safeName}.pdf`);
-  dlBtn.disabled = false;
+pdf.addImage(
+dataURL,
+'JPEG',
+dx,
+dy,
+w * ratio,
+h * ratio,
+'',
+'FAST'
+);
+
+resolve();
+
+img.src = entry.objURL;
+});
+}
+
+setProgress(items.length, items.length);
+progLabel.textContent = '✓ 저장 완료';
+document.getElementById('prog-pct').textContent = '100%';
+pdf.save(``${safeName}.pdf`);
+dlBtn.disabled = false;
 }
 
 function setProgress(cur, total) {
-  const pct = Math.round((cur / total) * 100);
-  bar.style.width = pct + '%';
-  document.getElementById('prog-pct').textContent = pct + '%';
-  progLabel.textContent = cur < total
-    ? `PDF 생성 중 ${cur + 1} / ${total}`
-    : '저장 중…';
+const pct = Math.round((cur / total) * 100);
+bar.style.width = pct + '%';
+document.getElementById('prog-pct').textContent = pct + '%';
+progLabel.textContent = cur < total
+? PDF 생성 중 ${cur + 1} / ${total}
+: '저장 중…';
 }
 </script>
 </body>
