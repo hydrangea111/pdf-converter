@@ -472,7 +472,7 @@ const pct = Math.round((cur / total) * 100);
 bar.style.width = pct + '%';
 document.getElementById('prog-pct').textContent = pct + '%';
 progLabel.textContent = cur < total
-? `PDF 생성 중` ${cur + 1} / ${total}
+? `PDF 생성 중 ${cur + 1} / ${total}`
 : '저장 중…';
 }
 </script>
