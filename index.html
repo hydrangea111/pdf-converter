@@ -384,7 +384,7 @@ function updateUI() {
 const count = preview.children.length;
 dlBtn.disabled = count === 0;
 badge.style.display = count ? 'block' : 'none';
-badge.textContent = 파일 ${count}개`;
+badge.textContent = `파일 ${count}개`;
 [...preview.children].forEach((el, i) => {
 el.querySelector('.thumb-num').textContent = i + 1;
 });
@@ -463,7 +463,7 @@ img.src = entry.objURL;
 setProgress(items.length, items.length);
 progLabel.textContent = '✓ 저장 완료';
 document.getElementById('prog-pct').textContent = '100%';
-pdf.save(``${safeName}.pdf`);
+pdf.save(`${safeName}.pdf`);
 dlBtn.disabled = false;
 }
 
@@ -472,7 +472,7 @@ const pct = Math.round((cur / total) * 100);
 bar.style.width = pct + '%';
 document.getElementById('prog-pct').textContent = pct + '%';
 progLabel.textContent = cur < total
-? PDF 생성 중 ${cur + 1} / ${total}
+? `PDF 생성 중 ${cur + 1} / ${total}
 : '저장 중…';
 }
 </script>
